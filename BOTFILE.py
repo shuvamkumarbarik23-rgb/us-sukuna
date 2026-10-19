@@ -752,7 +752,7 @@ async def start_web_server():
 # 🔐 HELPERS
 # =====================================================================
 async def is_auth(user_id):
-    return user_id == OWNER_ID or user_id in SUDO_USERS
+    return user_id == OWNER_ID or user_id in ARMY_USERS
 
 def get_mention(user):
     """REAL TAG/MENTION - bina username ke bhi!"""
@@ -791,7 +791,7 @@ def save_groups():
 @bot.on(events.NewMessage(incoming=True))
 async def mute_checker(event):
     if not event.sender_id: return
-    if event.sender_id == OWNER_ID or event.sender_id in SUDO_USERS: return
+    if event.sender_id == OWNER_ID or event.sender_id in ARMY_USERS: return
     cid = str(event.chat_id)
     uid = event.sender_id
     if cid in muted_users and uid in muted_users[cid]:
@@ -805,7 +805,7 @@ async def mute_checker(event):
 # =====================================================================
 @bot.on(events.NewMessage(pattern=r'^[\.\/\!]'))
 async def command_handler(event):
-    global bot_status, raid_active, raid_speed, SUDO_USERS, muted_users, BOT_USERNAME, GROUPS_CACHE
+    global bot_status, raid_active, raid_speed, ARMY_USERS, muted_users, BOT_USERNAME, GROUPS_CACHE
     
     text = event.text.strip()
     user = await event.get_sender()
@@ -821,10 +821,10 @@ async def command_handler(event):
         me = await bot.get_me()
         BOT_USERNAME = me.username
     
-    known = ['alive', 'start', 'menu', 'off', 'ping', 'speed', 'id', 'info', 'sudo', 'sudolist',
+    known = ['alive', 'start', 'menu', 'off', 'ping', 'speed', 'id', 'info', 'army', 'armylist',
              'r', 'rr', 'rrr', 's', 'addline', 'lines', 'mute', 'unmute', 'shayari', 'addsticker',
              'sticker', 'broadcast', 'tagbroadcast', 'chatbox', 'hack', 'spam', 'quote', 'calc',
-             'joke', 'gc', 'restart', 'truth', 'dare', 'setphoto', 'addsudo', 'remsudo', 'botstats',
+             'joke', 'gc', 'restart', 'truth', 'dare', 'setphoto', 'addarmy', 'remarmy', 'botstats',
              'forward', 'mutedlist', 'delallraid', 'shayaritypes']
     
     if cmd not in known:
@@ -851,7 +851,7 @@ async def command_handler(event):
             f"👑 **Owner:** {get_mention(await bot.get_entity(OWNER_ID))}\n"
             f"🆔 **Owner ID:** `{OWNER_ID}`\n"
             f"⚡ **Mode:** `ACTIVE & LETHAL`\n"
-            f"🔑 **Sudo Users:** `{len(SUDO_USERS)}`\n"
+            f"🔑 **Army Users:** `{len(ARMY_USERS)}`\n"
             f"📦 **Groups:** `{len(GROUPS_CACHE)}`\n"
             f"📜 **Raid Lines:** `{len(raid_lines)}`\n"
             f"🔇 **Muted Users:** `{sum(len(v) for v in muted_users.values())}`\n\n"
@@ -927,7 +927,7 @@ async def command_handler(event):
             f"🆔 **ID:** `{user_id}`\n"
             f"📛 **Username:** @{user.username if user.username else 'N/A'}\n"
             f"👑 **Owner:** {'✅' if user_id==OWNER_ID else '❌'}\n"
-            f"🔑 **Sudo:** {'✅' if user_id in SUDO_USERS else '❌'}"
+            f"🔑 **Army:** {'✅' if user_id in ARMY_USERS else '❌'}"
         )
         return
     
@@ -945,49 +945,49 @@ async def command_handler(event):
         return
     
     # ===== .sudo =====
-    if cmd in ["sudo", "addsudo"]:
+    if cmd in ["army", "addarmy"]:
         if user_id != OWNER_ID:
             await event.reply("❌ Sirf owner!")
             return
         target_id, target_user = await resolve_target(event, args)
         if not target_id:
-            await event.reply("❌ Usage: `.sudo @username`")
+            await event.reply("❌ Usage: `.army @username`")
             return
         if target_id == OWNER_ID:
-            await event.reply("❌ Owner khud sudo nahi!")
+            await event.reply("❌ Owner khud army nahi!")
             return
-        if target_id in SUDO_USERS:
-            await event.reply("❌ Pehle se sudo hai!")
+        if target_id in ARMY_USERS:
+            await event.reply("❌ Pehle se army hai!")
             return
-        SUDO_USERS.append(target_id)
+        ARMY_USERS.append(target_id)
         u = target_user or await bot.get_entity(target_id)
         await event.reply(
             f"╔══════════════════════╗\n"
-            f"   🔑 **SUDO ADDED** 🔑\n"
+            f"   🔑 **ARMY ADDED** 🔑\n"
             f"╚══════════════════════╝\n\n"
             f"👤 {get_mention(u)}\n🆔 `{target_id}`\n\n"
-            f"🎉 **Aapko sudo mil gaya!**\n✅ Aap ab bot use kar sakte hain!"
+            f"🎉 **Aapko army mil gaya!**\n✅ Aap ab bot use kar sakte hain!"
         )
         return
     
-    if cmd == "remsudo":
+    if cmd == "remarmy":
         if user_id != OWNER_ID:
             await event.reply("❌ Sirf owner!")
             return
         target_id, _ = await resolve_target(event, args)
         if not target_id:
-            await event.reply("❌ Usage: `.remsudo @username`")
+            await event.reply("❌ Usage: `.remarmy @username`")
             return
-        if target_id in SUDO_USERS:
+        if target_id in ARMY_USERS:
             SUDO_USERS.remove(target_id)
-            await event.reply(f"✅ Sudo hata diya!")
+            await event.reply(f"✅ Aav tu army na raha!")
         else:
-            await event.reply("❌ Yeh sudo nahi hai!")
+            await event.reply("❌ Yeh ARMY nahi hai!")
         return
     
-    if cmd == "sudolist":
-        text = "🔐 **SUDO USERS LIST**\n\n"
-        for sid in SUDO_USERS:
+    if cmd == "armylist":
+        text = "🔐 **ARMY USERS LIST**\n\n"
+        for sid in ARMY_USERS:
             try:
                 u = await bot.get_entity(sid)
                 text += f"• {get_mention(u)} - `{sid}`\n"
@@ -1006,8 +1006,8 @@ async def command_handler(event):
         if not target_id:
             await event.reply("❌ Usage: `.r @username`")
             return
-        if target_id == OWNER_ID or target_id in SUDO_USERS:
-            await event.reply("🛡️ Cannot raid owner/sudo!")
+        if target_id == OWNER_ID or target_id in ARMY_USERS:
+            await event.reply("🛡️ Cannot raid owner / army members!")
             return
         
         speed = 1.5 if cmd == "r" else (0.6 if cmd == "rr" else 0.25)
@@ -1065,8 +1065,8 @@ async def command_handler(event):
         if not target_id:
             await event.reply("❌ Usage: `.mute @username`")
             return
-        if target_id == OWNER_ID or target_id in SUDO_USERS:
-            await event.reply("🛡️ Cannot mute owner/sudo!")
+        if target_id == OWNER_ID or target_id in ARMY_USERS:
+            await event.reply("🛡️ Cannot mute owner / army members!")
             return
         cid = str(chat_id)
         if cid not in muted_users: muted_users[cid] = []
@@ -1388,7 +1388,7 @@ async def command_handler(event):
             f"📊 **BOT STATISTICS**\n\n"
             f"🤖 **Status:** {'🟢 ONLINE' if bot_status == 'online' else '🔴 OFFLINE'}\n"
             f"👑 **Owner:** `{OWNER_ID}`\n"
-            f"🔑 **Sudo:** `{len(SUDO_USERS)}`\n"
+            f"🔑 **Army:** `{len(ARMY_USERS)}`\n"
             f"📦 **Groups:** `{len(GROUPS_CACHE)}`\n"
             f"📜 **Lines:** `{len(raid_lines)}`\n"
             f"⚔️ **Raid:** {raid_status}\n"
@@ -1452,7 +1452,7 @@ async def punish_unauthorized(event):
         f"{mention} RANDI KI AULAD BOT KA USE KARE GA TERI MAKI CHUT ME TALWAR GHUSAAUNGA 🔥",
         f"BHOSDIKE {mention} TERI BEHEN KI CHUT ME BOT DAAL DUNGA 🖕",
         f"{mention} CHUTIYE TERA BAAP BHI NAHI HAI TERA 🤡",
-        f"TERI MAKI CHUT {mention} MADARCHOD PEHLE SUDO LE PHIR AA 💀",
+        f"TERI MAKI CHUT {mention} MADARCHOD PEHLE ARMY BEN PHIR AA 💀",
     ]
     for i in range(random.randint(4, 6)):
         try:
@@ -1472,7 +1472,7 @@ async def callback_handler(event):
             owner = await bot.get_entity(OWNER_ID)
             mention = get_mention(owner)
         except: mention = f"`{OWNER_ID}`"
-        await event.edit(f"👑 **BOT OWNER**\n\n🆔 `{OWNER_ID}`\n👤 {mention}\n🔑 Sudo: `{len(SUDO_USERS)}`\n📡 {'🟢 ONLINE' if bot_status == 'online' else '🔴 OFFLINE'}", buttons=[[Button.inline("⬅️ Back", data="main")]])
+        await event.edit(f"👑 **BOT OWNER**\n\n🆔 `{OWNER_ID}`\n👤 {mention}\n🔑 Army: `{len(ARMY_USERS)}`\n📡 {'🟢 ONLINE' if bot_status == 'online' else '🔴 OFFLINE'}", buttons=[[Button.inline("⬅️ Back", data="main")]])
     
     elif data == "cmd_list":
         await event.edit(
@@ -1483,7 +1483,7 @@ async def callback_handler(event):
             "📖 **SHAYARI**\n`.shayari` | `.shayari [type] @user [count]`\n\n"
             "🖼️ **STICKERS**\n`.addsticker` (reply) | `.sticker @user [count]`\n\n"
             "📢 **BROADCAST**\n`.broadcast [msg]` | `.tagbroadcast @user [msg]` | `.chatbox [msg]`\n\n"
-            "🔐 **SUDO**\n`.sudo @user` | `.remsudo @user` | `.sudolist`\n\n"
+            "🔐 **SUDO**\n`.army @user` | `.remarmy @user` | `.armylist`\n\n"
             "🎮 **EXTRA**\n`.hack` | `.spam` | `.quote` | `.calc` | `.joke` | `.truth` | `.dare`\n`.botstats` | `.gc` | `.forward` | `.setphoto` | `.restart`",
             buttons=[[Button.inline("⬅️ Back", data="main")]])
     
@@ -1545,3 +1545,4 @@ if __name__ == "__main__":
     # Start both web server and bot together
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())
+
