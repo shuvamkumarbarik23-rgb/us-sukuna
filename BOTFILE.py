@@ -23,15 +23,15 @@ BOT_TOKEN = '8917996101:AAGRs1jg80lnkO0nhVZAwVYhF_02rLjFEJo'  # @BotFather se lo
 OWNER_ID = 8734813395# Teri ID
 CO_OWNER_ID = 5183116678
 
-SUDO_USERS = [8734813395]
-SUDO_USERS = [5183116678]
+ARMY_USERS = [5183116678]
+ARMY_USERS = [ 8734813395]
 bot_status = "online"
 raid_active = {}
 raid_speed = 0.5
 GROUPS_CACHE = []
 muted_users = {}
 USER_STATES = {}
-BOT_USERNAME = "raideropsukuna_bot"
+BOT_USERNAME = "yourdadremember_bot"
 
 # ============== RENDER PORT (SIRF YAHI ADD KIYA HAI) ==============
 PORT = int(os.environ.get("PORT", 8080))
