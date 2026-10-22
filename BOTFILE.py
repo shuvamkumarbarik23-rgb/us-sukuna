@@ -13,8 +13,52 @@ from datetime import datetime
 from aiohttp import web
 from telethon import TelegramClient, events, Button
 from telethon.tl.types import MessageEntityTextUrl, MessageEntityMentionName
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from pyrogram.errors import UserNotParticipant, RPCError
+from telethon import Button
+
+# ===== FORCE SUBSCRIBE CHANNEL SETTINGS =====
+
+
+
+
+async def is_channel_member(user_id):
+    try:
+        participant = await bot.get_permissions(
+            CHANNEL_USERNAME, user_id
+        )
+        return True
+    except Exception:
+        return False
+
+
+@bot.on(events.NewMessage(pattern=r"^/start$"))
+async def force_subscribe(event):
+    if not event.is_private:
+        return
+
+    if await is_channel_member(event.sender_id):
+        await event.respond(
+            "Welcome! You can now use the bot."
+        )
+    else:
+        await event.respond(
+            "Please join our channel first, then send /start again.",
+            buttons=[
+                [Button.url("📢 Join Channel", CHANNEL_LINK)],
+                [Button.inline("✅ I've Joined", b"check_join")]
+            ]
+        )
+
+
+@bot.on(events.CallbackQuery(data=b"check_join"))
+async def check_join_callback(event):
+    if await is_channel_member(event.sender_id):
+        await event.answer("Membership verified!", alert=True)
+        await event.respond("✅ You can now use the bot.")
+    else:
+        await event.answer(
+            "You haven't joined the channel yet.",
+            alert=True
+        )
 
 
 
@@ -26,7 +70,7 @@ API_HASH = 'c0e5fa94ba15a7d8fd4a883c21db2afe'
 BOT_TOKEN = '8917996101:AAGRs1jg80lnkO0nhVZAwVYhF_02rLjFEJo'  # @BotFather se lo
 OWNER_ID = 8734813395# Teri ID
 CO_OWNER_ID = 5183116678
-FORCE_CHANNEL = "Army"
+CHANNEL_USERNAME = "Army"
 CHANNEL_LINK = "https://t.me/sukunasarmy"
 ARMY_USERS = [5183116678]
 ARMY_USERS = [ 8734813395]
@@ -789,6 +833,52 @@ def update_groups_sync():
 
 def save_groups():
     write_json("groups.json", GROUPS_CACHE)
+
+# =====================================================================
+# ===== FORCE SUBSCRIBE CHANNEL SETTINGS =====
+# =====================================================================
+
+
+async def is_channel_member(user_id):
+    try:
+        participant = await bot.get_permissions(
+            CHANNEL_USERNAME, user_id
+        )
+        return True
+    except Exception:
+        return False
+
+
+@bot.on(events.NewMessage(pattern=r"^/start$"))
+async def force_subscribe(event):
+    if not event.is_private:
+        return
+
+    if await is_channel_member(event.sender_id):
+        await event.respond(
+            "Welcome! You can now use the bot."
+        )
+    else:
+        await event.respond(
+            "Please join our channel first, then send /start again.",
+            buttons=[
+                [Button.url("📢 Join Channel", CHANNEL_LINK)],
+                [Button.inline("✅ I've Joined", b"check_join")]
+            ]
+        )
+
+
+@bot.on(events.CallbackQuery(data=b"check_join"))
+async def check_join_callback(event):
+    if await is_channel_member(event.sender_id):
+        await event.answer("Membership verified!", alert=True)
+        await event.respond("✅ You can now use the bot.")
+    else:
+        await event.answer(
+            "You haven't joined the channel yet.",
+            alert=True
+        )
+
 
 # =====================================================================
 # 🚫 MUTE CHECK
