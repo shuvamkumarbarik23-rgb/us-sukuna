@@ -15,52 +15,6 @@ from telethon import TelegramClient, events, Button
 from telethon.tl.types import MessageEntityTextUrl, MessageEntityMentionName
 from telethon import Button
 
-# ===== FORCE SUBSCRIBE CHANNEL SETTINGS =====
-
-
-
-
-async def is_channel_member(user_id):
-    try:
-        participant = await bot.get_permissions(
-            CHANNEL_USERNAME, user_id
-        )
-        return True
-    except Exception:
-        return False
-
-
-@bot.on(events.NewMessage(pattern=r"^/start$"))
-async def force_subscribe(event):
-    if not event.is_private:
-        return
-
-    if await is_channel_member(event.sender_id):
-        await event.respond(
-            "Welcome! You can now use the bot."
-        )
-    else:
-        await event.respond(
-            "Please join our channel first, then send /start again.",
-            buttons=[
-                [Button.url("📢 Join Channel", CHANNEL_LINK)],
-                [Button.inline("✅ I've Joined", b"check_join")]
-            ]
-        )
-
-
-@bot.on(events.CallbackQuery(data=b"check_join"))
-async def check_join_callback(event):
-    if await is_channel_member(event.sender_id):
-        await event.answer("Membership verified!", alert=True)
-        await event.respond("✅ You can now use the bot.")
-    else:
-        await event.answer(
-            "You haven't joined the channel yet.",
-            alert=True
-        )
-
-
 
 # =====================================================================
 # ⚙️ CONFIG - APNA YAHI DAALO
